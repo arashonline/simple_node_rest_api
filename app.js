@@ -1,8 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const feedRoutes = require('./routes/feed')
+const mongoose = require('mongoose');
+const feedRoutes = require('./routes/feed');
 
 const app = express();
+
+const MONGODB_URI = 'mongodb://localhost:27017/feeds';
 
 // app.use(bodyParser.urlencoded()); //x-www-form-urlencoded
 
@@ -18,4 +21,11 @@ app.use((req,res,next)=>{
 
 app.use('/feed', feedRoutes);
 
-app.listen(8022);
+mongoose.connect(MONGODB_URI,{ useUnifiedTopology: true,useNewUrlParser: true })
+.then(result =>{
+    app.listen(8022);
+})
+.catch(err=>{
+    console.log(err)
+})
+
