@@ -1,0 +1,9 @@
+GET http://localhost:8022/feed/posts
+
+POST http://localhost:8022/feed/posts
+content-type: application/json
+
+{
+    "title": "sample",
+    "content": "Wed, 21 Oct 2015 18:27:50 GMT"
+}
