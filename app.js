@@ -5,7 +5,7 @@ const feedRoutes = require('./routes/feed');
 
 const app = express();
 
-const MONGODB_URI = 'mongodb://localhost:27017/feeds';
+const MONGODB_URI = 'mongodb://localhost:27017/messages';
 
 // app.use(bodyParser.urlencoded()); //x-www-form-urlencoded
 
