@@ -23,6 +23,13 @@ app.use((req,res,next)=>{
 
 app.use('/feed', feedRoutes);
 
+app.use((error, req,res, next)=>{
+    console.error{error};
+    const status = error.statusCode || 500;
+    const message = error.message
+    res.status(status).message(message;)
+});
+
 mongoose.connect(MONGODB_URI,{ useUnifiedTopology: true,useNewUrlParser: true })
 .then(result =>{
     app.listen(8022);

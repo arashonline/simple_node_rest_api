@@ -18,23 +18,37 @@ exports.getPosts = (req, res, next) => {
 exports.createPost = (req, res, next) => {
     const errors = validationResult(req);
     if(!errors.isEmpty()){
-        return res.status(422).json({message:'Validation Faild', errors: errors.array()})
+        const error = new Error('Validation Faild');
+        error.statusCode = 422;
+        throw error;
+        // return res.status(422).json({message:'Validation Faild', errors: errors.array()})
     }
 
     const title = req.body.title;
     const content = req.body.content;
     // create post in db
-    res.status(201).json({
-        message: 'Created!',
-        post: {
-            _id: new Date().toISOString(),
+    const post = new post({
             title: title,
-            content: content,
-            imageUrl: 'images/kitkat.jpg',
+        content: content,
+        imageUrl: 'images/kitkat.jpg',
             creator: {
                 name: 'Arash Rabiee',
             },
-            createdAt: new Date()
-        }
+            createdAt: new Date()}
+    );
+    post
+    .save()
+    .then(result=>{
+        res.status(201).json({
+            message: "Post created!",
+            post: result
+        })
     })
+    .catch(err =>{
+        if(!err.statusCode) {
+            err.statusCode = 500
+        }
+        next(err);
+    })
+   
 }
