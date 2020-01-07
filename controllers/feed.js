@@ -21,6 +21,7 @@ exports.getPosts = (req, res, next) => {
 
 exports.createPost = (req, res, next) => {
     const errors = validationResult(req);
+    console.log('asdf');
     if (!errors.isEmpty()) {
         const error = new Error('Validation Faild');
         error.statusCode = 422;
