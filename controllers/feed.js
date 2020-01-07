@@ -28,13 +28,20 @@ exports.createPost = (req, res, next) => {
         // return res.status(422).json({message:'Validation Faild', errors: errors.array()})
     }
 
+    if(!req.file){
+        const error = new Error('No image provided');
+        error.statusCode = 422;
+        throw error;
+
+    }
+    const imageUrl = req.file.path;
     const title = req.body.title;
     const content = req.body.content;
     // create post in db
     const post = new Post({
         title: title,
         content: content,
-        imageUrl: 'images/kitkat.jpg',
+        imageUrl: imageUrl,
         creator: {
             name: 'Arash Rabiee',
         },
