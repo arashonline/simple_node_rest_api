@@ -5,3 +5,5 @@ npm install --save multer
 
 to hash password
 npm install --save bcryptjs
+
+npm install --save jsonwebtoken
