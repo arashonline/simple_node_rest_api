@@ -6,7 +6,7 @@ const feedRoutes = require('./routes/feed');
 
 const app = express();
 
-const MONGODB_URI = 'mongodb://localhost:27017/messages';
+const MONGODB_URI = 'mongodb://localhost:27017/messages?retryWrites=true';
 
 // app.use(bodyParser.urlencoded()); //x-www-form-urlencoded
 
@@ -24,10 +24,10 @@ app.use((req,res,next)=>{
 app.use('/feed', feedRoutes);
 
 app.use((error, req,res, next)=>{
-    console.error{error};
+    console.log(error);
     const status = error.statusCode || 500;
     const message = error.message
-    res.status(status).message(message;)
+    res.status(status).json({message:message});
 });
 
 mongoose.connect(MONGODB_URI,{ useUnifiedTopology: true,useNewUrlParser: true })
