@@ -11,7 +11,9 @@ exports.getPosts = (req, res, next) => {
     const perPage = 2;
     let totalItems;
     Post.find()
-    .populate('creator').countDocuments()
+    .populate('creator')
+    .sort({createdAt : -1})
+    .countDocuments()
         .then(count => {
             totalItems = count;
             return Post.find()
@@ -138,6 +140,7 @@ exports.updatePost = (req, res, next) => {
         throw error;
     }
     Post.findById(postId)
+    .populate('creator')
         .then(post => {
             if (!post) {
                 const error = new Error('Could not find post.');
@@ -157,6 +160,7 @@ exports.updatePost = (req, res, next) => {
             post.content = content;
             return post.save();
         }).then(result => {
+            io.getIO().broadcast('posts', {action:'update',post:result})
             res.status(200).json({
                 message: "Post updated",
                 post: result
@@ -197,6 +201,7 @@ exports.deletePost = (req, res, next) => {
             
         })
         .then(result =>{
+            io.getIO().emit('posts',{action:'delete', post: postId})
             res.status(200).json({
                 message: 'Deleted post.'
             })
