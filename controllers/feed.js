@@ -76,7 +76,6 @@ exports.createPost = (req, res, next) => {
             return user.save();
 
         }).then(result => {
-            io.getIO().broadcast('posts',{ action: 'create', post:{...post._doc,creator:{_id: req.userId, name:user.name} })
             res.status(201).json({
                 message: "Post created!",
                 post: post,

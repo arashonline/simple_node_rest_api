@@ -10,7 +10,7 @@ const graphqlHttp = require('express-graphql');
 
 const graphqlSchema = require('./graphql/schema');
 const graphqlResolver = require('./graphql/resolver');
-const auth = requite('./middleware/auth');
+const auth = require('./middleware/auth');
 
 const app = express();
 
