@@ -11,3 +11,5 @@ npm install --save jsonwebtoken
 npm install --save socket.io
 
 npm install --save graphql express-graphql
+
+npm install --save validator
