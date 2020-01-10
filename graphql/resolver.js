@@ -153,7 +153,24 @@ module.exports = {
             }),
             totalPosts:totalPosts
         }
-    }
+    },
+    post: async function({id},req){
+        const post = await Post.findById(id)
+        .populate('creator');
 
+        if(!post){
+            const error = new Error('No post found!');
+            error.data = errors;
+            error.code = 404;
+            throw error;
+        }
+        return { ...post._doc,
+                     _id:post._id.toString(),
+                     createdAt:post.createdAt.toISOString(),
+                     updatedAt:post.updatedAt.toISOString(),
+                
+            }
+        
+    }
 
 };
