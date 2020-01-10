@@ -5,6 +5,8 @@ const bcrypt = require('bcryptjs');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 
+const { clearImage } = require('./util/file');
+
 // we need a method for every query or mutation in shcema
 module.exports = {
     //    createUser(args, req) {
@@ -75,7 +77,7 @@ module.exports = {
         return { token: token, userId: user._id.toString() }
     },
     createPost: async function ({ postInput }, req) {
-        if(!req.isAuth){
+        if (!req.isAuth) {
             const error = new Error('Not Authenticated.');
             error.code = 401;
             throw error
@@ -101,16 +103,16 @@ module.exports = {
         // now we can proceed with creating post 
 
         const user = await User.findById(req.userId);
-        if(!user){
+        if (!user) {
             const error = new Error('Invalid User.');
             error.code = 401;
             throw error
         }
 
         const post = new Post({
-            title:postInput.title,
-            content:postInput.content,
-            imageUrl:postInput.imageUrl,
+            title: postInput.title,
+            content: postInput.content,
+            imageUrl: postInput.imageUrl,
             creator: user
         });
 
@@ -119,74 +121,77 @@ module.exports = {
         user.posts.push(createdPost);
         await user.save()
 
-        return {...createdPost._doc, 
-            _id:createdPost._id.toString(),
-             createdAt:createdPost.createdAt.toISOString(),
-             updatedAt:createdPost.updatedAt.toISOString(),
-            }
+        return {
+            ...createdPost._doc,
+            _id: createdPost._id.toString(),
+            createdAt: createdPost.createdAt.toISOString(),
+            updatedAt: createdPost.updatedAt.toISOString(),
+        }
     },
-    posts: async function({page},req){
-        if(!req.isAuth){
+    posts: async function ({ page }, req) {
+        if (!req.isAuth) {
             const error = new Error('Not Authenticated.');
             error.code = 401;
             throw error
         }
 
-        if(!page){
+        if (!page) {
             page = 1;
         }
         const perPage = 2;
         const totalPosts = await Post.find().countDocuments()
         const posts = await Post.find()
-        .sort({createdAt: -1 })
-        .skip((page-1)*perPage)
-        .limit(perPage)
-        .populate('creator');
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * perPage)
+            .limit(perPage)
+            .populate('creator');
 
         return {
-            posts: posts.map(p=>{
-                return {...p._doc,
-                     _id:p._id.toString(),
-                     createdAt:p.createdAt.toISOString(),
-                     updatedAt:p.updatedAt.toISOString(),
+            posts: posts.map(p => {
+                return {
+                    ...p._doc,
+                    _id: p._id.toString(),
+                    createdAt: p.createdAt.toISOString(),
+                    updatedAt: p.updatedAt.toISOString(),
                 }
             }),
-            totalPosts:totalPosts
+            totalPosts: totalPosts
         }
     },
-    post: async function({id},req){
+    post: async function ({ id }, req) {
         const post = await Post.findById(id)
-        .populate('creator');
+            .populate('creator');
 
-        if(!post){
+        if (!post) {
             const error = new Error('No post found!');
             error.data = errors;
             error.code = 404;
             throw error;
         }
-        return { ...post._doc,
-                     _id:post._id.toString(),
-                     createdAt:post.createdAt.toISOString(),
-                     updatedAt:post.updatedAt.toISOString(),
-                
-            }
-        
+        return {
+            ...post._doc,
+            _id: post._id.toString(),
+            createdAt: post.createdAt.toISOString(),
+            updatedAt: post.updatedAt.toISOString(),
+
+        }
+
     },
-    updatePost: async function ({id,  postInput }, req) {
-        if(!req.isAuth){
+    updatePost: async function ({ id, postInput }, req) {
+        if (!req.isAuth) {
             const error = new Error('Not Authenticated.');
             error.code = 401;
             throw error
         }
         const post = await (await Post.findById(id)).populated('creator');
-        if(!post){
+        if (!post) {
             const error = new Error('Post not exist.');
             error.code = 404;
             throw error
         }
 
-        
-        if(req.userId.toString() !== post.creator._id.toString()){
+
+        if (req.userId.toString() !== post.creator._id.toString()) {
             const error = new Error('Not Authorized.');
             error.code = 401;
             throw error
@@ -213,19 +218,50 @@ module.exports = {
         // now we can proceed with creating post 
 
 
-            post.title = postInput.title;
-            post.content = postInput.content;
-            if(postInput.imageUrl !== 'undefined'){
-                post.imageUrl = postInput.imageUrl;
-            }
+        post.title = postInput.title;
+        post.content = postInput.content;
+        if (postInput.imageUrl !== 'undefined') {
+            post.imageUrl = postInput.imageUrl;
+        }
 
         const updatedPost = await post.save()
 
-        return {...updatedPost._doc, 
-            _id:updatedPost._id.toString(),
-             createdAt:updatedPost.createdAt.toISOString(),
-             updatedAt:updatedPost.updatedAt.toISOString(),
-            }
+        return {
+            ...updatedPost._doc,
+            _id: updatedPost._id.toString(),
+            createdAt: updatedPost.createdAt.toISOString(),
+            updatedAt: updatedPost.updatedAt.toISOString(),
+        }
+    },
+    deletePost: async function ({ id }, req) {
+        if (!req.isAuth) {
+            const error = new Error('Not Authenticated.');
+            error.code = 401;
+            throw error
+        }
+        const post = await (await Post.findById(id));
+        if (!post) {
+            const error = new Error('Post not exist.');
+            error.code = 404;
+            throw error
+        }
+
+        if (req.userId.toString() !== post.creator.toString()) {
+            const error = new Error('Not Authorized.');
+            error.code = 401;
+            throw error
+        }
+        try{
+            clearImage(post.imageUrl)
+            await Post.findByIdAndRemove(id);
+            const user = await User.findById(req.userId);
+            user.posts.pull(id);
+            await user.save();
+            return true
+        }catch(e){
+            return false;
+        }
+       
     },
 
 };
