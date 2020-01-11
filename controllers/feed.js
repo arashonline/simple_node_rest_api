@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const { validationResult } = require('express-validator/check');
 
-const io = require('../socket');
 const Post = require('../models/post');
 const User = require('../models/user')
 
@@ -76,7 +75,6 @@ exports.createPost = (req, res, next) => {
             return user.save();
 
         }).then(result => {
-            io.getIO().broadcast('posts',{ action: 'create', post:{...post._doc,creator:{_id: req.userId, name:user.name} })
             res.status(201).json({
                 message: "Post created!",
                 post: post,
@@ -160,7 +158,6 @@ exports.updatePost = (req, res, next) => {
             post.content = content;
             return post.save();
         }).then(result => {
-            io.getIO().broadcast('posts', {action:'update',post:result})
             res.status(200).json({
                 message: "Post updated",
                 post: result
@@ -201,7 +198,6 @@ exports.deletePost = (req, res, next) => {
             
         })
         .then(result =>{
-            io.getIO().emit('posts',{action:'delete', post: postId})
             res.status(200).json({
                 message: 'Deleted post.'
             })
