@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 
-const { clearImage } = require('./util/file');
+// const { clearImage } = require('./util/file');
 
 // we need a method for every query or mutation in shcema
 module.exports = {
@@ -252,7 +252,7 @@ module.exports = {
             throw error
         }
         try{
-            clearImage(post.imageUrl)
+            // clearImage(post.imageUrl)
             await Post.findByIdAndRemove(id);
             const user = await User.findById(req.userId);
             user.posts.pull(id);
