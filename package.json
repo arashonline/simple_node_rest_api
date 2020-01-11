@@ -19,6 +19,7 @@
     "mocha": "^7.0.0",
     "mongoose": "^5.8.5",
     "multer": "^1.4.2",
+    "sinon": "^8.0.4",
     "socket.io": "^2.3.0"
   },
   "devDependencies": {

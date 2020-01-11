@@ -12,3 +12,4 @@ npm install --save socket.io
 
 packages for testing
 npm install --save--dev mocha chai
+npm install --save--dev sinon
